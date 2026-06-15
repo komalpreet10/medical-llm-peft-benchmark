@@ -85,10 +85,7 @@ def load_test_data():
     )
     output_col = _first_existing_column(
         columns,
-        [
-            "output", "answer", "Answer", "response", "target", "reference",
-            "doctor_answer", "Doctor Answer", "final_answer"
-        ]
+        ["output", "answer", "Answer", "response", "target", "reference"]
     )
 
     dataset = dataset.map(
