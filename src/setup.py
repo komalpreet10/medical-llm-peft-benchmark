@@ -15,8 +15,6 @@ def setup_kaggle():
         os.system(f"git clone {REPO_URL} {REPO_DIR}")
 
     os.chdir(REPO_DIR)
-    os.system("git pull origin main")
-
     if Path("requirements.txt").exists():
         os.system("pip install -q -r requirements.txt")
     else:
