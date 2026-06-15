@@ -7,6 +7,28 @@ import evaluate
 from bert_score import score as bert_score
 
 
+INPUT_COLUMNS = ["input", "question", "Question", "query", "prompt"]
+OUTPUT_COLUMNS = [
+    "output", "answer", "Answer", "response", "target", "reference",
+    "doctor_answer", "Doctor Answer", "final_answer"
+]
+
+
+def _get_first_value(row, candidates):
+    for column in candidates:
+        try:
+            value = row[column]
+        except KeyError:
+            continue
+        if value is not None:
+            return value
+    available = list(row.keys()) if hasattr(row, "keys") else "unknown"
+    raise KeyError(
+        f"None of the expected columns {candidates} found. "
+        f"Available columns: {available}"
+    )
+
+
 def _model_device(model):
     return next(model.parameters()).device
 
@@ -14,7 +36,7 @@ def _model_device(model):
 def format_generation_prompt(row, tokenizer):
     messages = [
         {"role": "system", "content": row.get("instruction", "")},
-        {"role": "user", "content": row["input"]},
+        {"role": "user", "content": _get_first_value(row, INPUT_COLUMNS)},
     ]
     return tokenizer.apply_chat_template(
         messages,
@@ -63,7 +85,7 @@ def generate_responses(model, tokenizer, dataset, max_new_tokens=200):
         )
 
         predictions.append(generated)
-        references.append(row["output"])
+        references.append(_get_first_value(row, OUTPUT_COLUMNS))
 
     return predictions, references
 
